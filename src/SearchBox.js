@@ -16,9 +16,13 @@ const params = {
   addressdetails: 'addressdetails'
 }
 
-export const SearchBox = () => {
+export const SearchBox = (props) => {
+  const {selectPosition, setSelectPosition} = props;
   const [searchText, setSearchText] = useState("");
+  const [listPlace, setListPlace] = useState([]);
   console.log(searchText);
+
+
   return (
     <div className={Styles.container}>
       <div className={Styles.container_search}>
@@ -33,7 +37,7 @@ export const SearchBox = () => {
         <div className={Styles.button}>
           <Button variant="contained" color="primary" onClick={()=>{
             
-            // SEARCH
+            // SEARCH PLACES
             const params = {
               q: searchText,
               format: 'json',
@@ -47,7 +51,8 @@ export const SearchBox = () => {
             };
             fetch(`${NOMINATIM_BASE_URL}${queryString}`, requestOptions)
             .then((response)=> response.text())
-            .then((result)=> {console.log(JSON.parse(result))
+            .then((result)=> {console.log(JSON.parse(result));
+              setListPlace(JSON.parse(result));
             })
             .catch((err)=> console.log('error:', err));
 
@@ -58,17 +63,18 @@ export const SearchBox = () => {
         </div>
         <div>
         <nav aria-label="main mailbox folders">
-        <List>
-          {
-            [1,2,3,4,5].map((item)=>{
+        <List aria-label="main mailbox folders">
+          {listPlace.map((item)=>{
               return(
-                <div key={item}>
-                  <ListItem disablePadding>
+                <div key={item?.osm_id}>
+                  <ListItem onClick={()=>{
+                    setSelectPosition(item);
+                  }}>
                   <ListItemButton>
                   <ListItemIcon>
                     <img className={Styles.location_Img} src='./placeholder.png' />
                   </ListItemIcon>
-                  <ListItemText primary="Inbox" />
+                  <ListItemText primary={item?.display_name} />
                 </ListItemButton>
               </ListItem>
               <Divider/>
