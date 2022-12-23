@@ -1,0 +1,23 @@
+.container{
+    display: flex;
+    flex-direction: column;
+}
+
+.container_search{
+    display: flex;
+}
+
+.container_output{
+    flex: 1;
+}
+
+.button{
+    display: flex;
+    align-items: center;
+    padding: 0px 20px;
+}
+
+.location_Img{
+    width: 35px;
+    height: 35px;
+}
