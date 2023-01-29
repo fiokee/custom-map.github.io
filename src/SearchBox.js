@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Styles from './search.module.css';
 import Button from '@mui/material/Button';
@@ -22,6 +22,39 @@ export const SearchBox = (props) => {
   const [listPlace, setListPlace] = useState([]);
   console.log(searchText);
 
+  useEffect(() => {
+    const fetchPlaces = async () => {
+        // if (searchText.length === 0) {
+        //   setListPlace([]);
+        //   return;
+        // }
+      const params = {
+        q: searchText,
+        format: 'json',
+        addressdetails: 1,
+        polygon_geojson: 0
+      };
+      const queryString = new URLSearchParams(params).toString();
+      const requestOptions ={
+        method: 'GET',
+        redirect: 'follow'
+      };
+      try {
+        const response = await fetch(`${NOMINATIM_BASE_URL}${queryString}`, requestOptions);
+        const result = await response.text();
+        setListPlace(JSON.parse(result));
+      } catch (err) {
+        console.log('error:', err);
+      }
+    };
+
+    /*If the length of the searchText is 0, it will not run the hook.*/
+  
+    if (searchText.length > 0) {
+      fetchPlaces();
+    }
+  }, [searchText]);
+
 
   return (
     <div className={Styles.container}>
@@ -29,44 +62,20 @@ export const SearchBox = (props) => {
         <div className={Styles.container_output}>
 
           <OutlinedInput style={{width: '100%'}}
-           value={searchText}
+          placeholder="search location" value={searchText}
             onChange={(event)=>{
               setSearchText(event.target.value);
             }}/>
         </div>
-        <div className={Styles.button}>
-          <Button variant="contained" color="primary" onClick={()=>{
-            
-            // SEARCH PLACES
-            const params = {
-              q: searchText,
-              format: 'json',
-              addressdetails: 1,
-              polygon_geojson: 0
-            };
-            const queryString = new URLSearchParams(params).toString();
-            const requestOptions ={
-              method: 'GET',
-              redirect: 'follow'
-            };
-            fetch(`${NOMINATIM_BASE_URL}${queryString}`, requestOptions)
-            .then((response)=> response.text())
-            .then((result)=> {console.log(JSON.parse(result));
-              setListPlace(JSON.parse(result));
-            })
-            .catch((err)=> console.log('error:', err));
-
-          }}>
-            Search
-          </Button>
-        </div>
+        
         </div>
         <div>
         <nav aria-label="main mailbox folders">
         <List aria-label="main mailbox folders">
           {listPlace.map((item)=>{
+            //osm_id
               return(
-                <div key={item?.osm_id}>
+                <div key={item?.place_id}>
                   <ListItem onClick={()=>{
                     setSelectPosition(item);
                   }}>
